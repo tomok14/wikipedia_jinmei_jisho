@@ -6,14 +6,11 @@ Wikipediaダンプからmozc用人名辞書を作成する
 import re
 import bz2
 import sys
-from pathlib import Path
 from datetime import datetime
 from lxml import etree
 
 
 # -----------------------------------------------------
-# RE_SEIMEI = re.compile(r"'''([一-龯々〆ヵヶ]+)\s+([一-龯々〆ヵヶ]+)'''（([ぁ-ゟ]+)\s+([ぁ-ゟ]+)")
-# RE_TAN = re.compile(r"'''([一-龯々〆ヵヶ]+)'''（([ぁ-ゟ]+)")
 RE_SEIMEI = re.compile(
     r"'''([一-龯ぁ-ゔァ-ヴー々]+)\s+([一-龯ぁ-ゔァ-ヴー々]+)'''（([ぁ-んー]+)\s+([ぁ-んー]+)"
 )
@@ -27,7 +24,7 @@ def is_hiragana(s):
     return bool(re.fullmatch(r"[ぁ-ん]+", s))
 
 
-def proc_text(jisyo, text):
+def proc_text(text):
     """Wikipedia記事一ページ分のテキスト処理"""
 
     # ＜姓 名＞ 形式
@@ -36,11 +33,11 @@ def proc_text(jisyo, text):
 
         # Mozc辞書形式で出力
         if not is_hiragana(sei_kanji):
-            jisyo.write(f"{sei_yomi}\t{sei_kanji}\t姓\n")
+            print(f"{sei_yomi}\t{sei_kanji}\t姓")
         if not is_hiragana(mei_kanji):
-            jisyo.write(f"{mei_yomi}\t{mei_kanji}\t名\n")
+            print(f"{mei_yomi}\t{mei_kanji}\t名")
         if not is_hiragana(sei_kanji + mei_kanji):
-            jisyo.write(f"{sei_yomi}{mei_yomi}\t{sei_kanji}{mei_kanji}\t人名\n")
+            print(f"{sei_yomi}{mei_yomi}\t{sei_kanji}{mei_kanji}\t人名")
         return
 
     last500 = text[-500:]
@@ -54,7 +51,7 @@ def proc_text(jisyo, text):
                 return
 
             # Mozc辞書形式で出力
-            jisyo.write(f"{tan_yomi}\t{tan_kanji}\t人名\n")
+            print(f"{tan_yomi}\t{tan_kanji}\t人名")
             return
 
 
@@ -82,7 +79,7 @@ def is_taisyo(title, text):
     return False
 
 
-def proc(jisyo, dumpfile):
+def proc(dumpfile):
     """メイン処理"""
 
     pagecount = 0
@@ -99,7 +96,7 @@ def proc(jisyo, dumpfile):
                 if elem.tag.startswith("{"):
                     ns_uri = elem.tag.split("}")[0][1:]
                     NS = f"{{{ns_uri}}}"
-                    print("NS=", NS)
+                    lognow(f"{NS=}")
 
                 continue
 
@@ -118,7 +115,7 @@ def proc(jisyo, dumpfile):
                         lognow("pagecount=" + str(pagecount))
 
                     if text:
-                        proc_text(jisyo, text)
+                        proc_text(text)
 
                 # memory free (important)
                 elem.clear()
@@ -134,7 +131,7 @@ def lognow(msg):
     """log"""
     now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
-    print(f"[{now}] {msg}")
+    print(f"[{now}] {msg}", file=sys.stderr)
 
 
 # -------------------------------
@@ -143,7 +140,7 @@ def lognow(msg):
 def main():
     """main"""
     if len(sys.argv) < 2:
-        print("Usage: python mkjisyo.py dumpfile1 dumpfile2 ...")
+        print("Usage: python mkjisyo.py dumpfile1 dumpfile2 ...", file=sys.stderr)
         sys.exit(1)
 
     dumpfiles = sys.argv[1:]
@@ -156,11 +153,10 @@ def main():
     lognow(f"jisyofile = {jisyofile}")
 
     # with bz2.open(jisyofile, "wt", encoding="utf-8") as jisyo:
-    with open(jisyofile, "wt", encoding="utf-8") as jisyo:
-        for dumpfile in dumpfiles:
-            lognow(f"dumpfile = {dumpfile}")
+    for dumpfile in dumpfiles:
+        lognow(f"dumpfile = {dumpfile}")
 
-            proc(jisyo, dumpfile)
+        proc(dumpfile)
 
     lognow("all done.")
 
