@@ -60,4 +60,4 @@ jobs:
       - name: send mail
         run: |
           echo ${{ secrets.EMAIL }}
-          echo test | mail -s "test" ${{ secrets.EMAIL }}
+          echo test | mail -s "jisho done" ${{ secrets.EMAIL }}
