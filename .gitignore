@@ -4,6 +4,9 @@ b.py
 jisyo.txt
 jisyo2.txt
 jisyo3.txt
+jisho.txt
+jisho2.txt
+jisho3.txt
 out.txt
 nohup.out
 jawiki-latest-pages-articles.xml.bz2
@@ -26,3 +29,4 @@ a
 b
 a.sh
 jawiki*
+hisyo2.txt
