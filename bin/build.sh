@@ -13,7 +13,7 @@ DATE=$(TZ=Asia/Tokyo date "+%Y/%-m/%-d %H:%M:%S JST")
 #DATE=$(LANG=C TZ=-9 date '+%a %b %d %H:%M:%S JST %Y')
 echo "$DATE"
 
-function create_jisyo_core() {
+function create_jisho_core() {
     dicname="$1"
     dicfile="$2"
     cc="$3" # Comment Character
@@ -42,7 +42,7 @@ function create_jisyo_core() {
     fi
 }
 
-function create_jisyo() {
+function create_jisho() {
     base="$1"
     type="$2"
     comt="$3"
@@ -52,19 +52,19 @@ function create_jisyo() {
 
     # mozc用辞書の作成
     mozc=$OUTDIR/mozc_${type}.txt
-    create_jisyo_core "mozc" "$mozc" "#" "$base" "$dumpfiles" "$line" "$comt"
+    create_jisho_core "mozc" "$mozc" "#" "$base" "$dumpfiles" "$line" "$comt"
 
     # SKK用辞書の作成
     skk=$OUTDIR/skk_${type}.txt
-    create_jisyo_core "SKK" "$skk" ";;" "$base" "$dumpfiles" "$line" "$comt"
+    create_jisho_core "SKK" "$skk" ";;" "$base" "$dumpfiles" "$line" "$comt"
 
     # MS-IME辞書の作成
     msime=$OUTDIR/msime_${type}.txt
-    create_jisyo_core "MS-IME" "$msime" "!" "$base" "$dumpfiles" "$line" "$comt"
+    create_jisho_core "MS-IME" "$msime" "!" "$base" "$dumpfiles" "$line" "$comt"
 
     # Gboard辞書の作成
     gboard=$OUTDIR/gboard_${type}.txt
-    create_jisyo_core "Gboard" "$gboard" "!" "$base" "$dumpfiles" "$line" "$comt"
+    create_jisho_core "Gboard" "$gboard" "!" "$base" "$dumpfiles" "$line" "$comt"
 }
 
 function main() {
@@ -73,23 +73,23 @@ function main() {
     echo "dumpfiles=$dumpfiles"
 
     # 辞書作成
-    python src/mkjisyo.py "$dumpfiles" >$OUTDIR/jisyo.txt
+    python src/mkjisho.py "$@" >$OUTDIR/jisho.txt
 
     # 空行削除
-    grep -v "^$" $OUTDIR/jisyo.txt >$OUTDIR/jisyo2.txt
+    grep -v "^$" $OUTDIR/jisho.txt >$OUTDIR/jisho2.txt
 
     # よみの入っていないおかしなデータは削除する
-    grep -P -v "^\t" $OUTDIR/jisyo2.txt >$OUTDIR/jisyo3.txt
+    grep -P -v "^\t" $OUTDIR/jisho2.txt >$OUTDIR/jisho3.txt
 
     # 重複行削除
-    awk '!a[$0]++' $OUTDIR/jisyo3.txt >$OUTDIR/nodup_all.txt
+    awk '!a[$0]++' $OUTDIR/jisho3.txt >$OUTDIR/nodup_all.txt
 
     # 1,2文字の読みは削除する
     # →日本語漢字変換の誤動作を防ぐため
     grep -v -P "^.{1,2}\t" $OUTDIR/nodup_all.txt >$OUTDIR/nodup_over3.txt
 
-    create_jisyo $OUTDIR/nodup_all.txt all "全て入り版" "$dumpfiles"
-    create_jisyo $OUTDIR/nodup_over3.txt over3 "１，２文字除外版" "$dumpfiles"
+    create_jisho $OUTDIR/nodup_all.txt all "全て入り版" "$dumpfiles"
+    create_jisho $OUTDIR/nodup_over3.txt over3 "１，２文字除外版" "$dumpfiles"
 }
 
 main "$@"

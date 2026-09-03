@@ -176,22 +176,22 @@ def lognow(msg):
 def main():
     """main"""
     if len(sys.argv) < 2:
-        print("Usage: python mkjisyo.py dumpfile1 dumpfile2 ...", file=sys.stderr)
+        print("Usage: python mkjisho.py dumpfile1 dumpfile2 ...", file=sys.stderr)
         sys.exit(1)
 
     dumpfiles = sys.argv[1:]
-    jisyofile = "jisyo.txt"
+    jishofile = "jisho.txt"
 
-    # if Path(jisyofile).exists():
-    #    raise FileExistsError(f"File exists: {jisyofile}")
+    # if Path(jishofile).exists():
+    #    raise FileExistsError(f"File exists: {jishofile}")
 
-    lognow("mkjisyo start")
-    lognow(f"jisyofile = {jisyofile}")
+    lognow("mkjisho start")
+    lognow(f"jishofile = {jishofile}")
     lognow(f"dumpfiles = {dumpfiles}")
 
-    # with bz2.open(jisyofile, "wt", encoding="utf-8") as jisyo:
-    for dumpfile in dumpfiles:
-        lognow(f"dumpfile = {dumpfile}")
+    # with bz2.open(jishofile, "wt", encoding="utf-8") as jisho:
+    for i, dumpfile in enumerate(dumpfiles, start=1):
+        lognow(f"[{i}/{len(dumpfiles)}] dumpfile = {dumpfile}")
 
         proc(dumpfile)
 
