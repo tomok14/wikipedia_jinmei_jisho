@@ -11,6 +11,9 @@ permissions:
 jobs:
   make_jisyo_cron:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v6
@@ -47,7 +50,6 @@ jobs:
           sudo apt install -y wget curl mailutils
 
       - name: make honban
-        shell: bash
         run: |
           make honban
 
