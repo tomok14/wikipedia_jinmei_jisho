@@ -47,6 +47,7 @@ jobs:
           sudo apt install -y wget curl mailutils
 
       - name: make honban
+        shell: bash
         run: |
           make honban
 
