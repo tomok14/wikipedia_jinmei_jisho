@@ -51,6 +51,7 @@ jobs:
 
       - name: make honban
         run: |
+          bash --version
           make honban
 
       - name: Upload binaries to release
