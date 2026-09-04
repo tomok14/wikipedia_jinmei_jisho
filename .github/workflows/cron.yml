@@ -25,7 +25,7 @@ jobs:
         run: |
           TAG="v$(date +'%Y.%m.%d')"
           # すでにタグが存在する場合は時分秒を付与
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
             TAG="v$(date +'%Y.%m.%d-%H%M%S')"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
