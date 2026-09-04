@@ -69,9 +69,6 @@ function create_jisho() {
 
 function main() {
 
-    dumpfiles="$*"
-    echo "dumpfiles=$dumpfiles"
-
     # 辞書作成
     python src/mkjisho.py "$@" >$OUTDIR/jisho.txt
 
