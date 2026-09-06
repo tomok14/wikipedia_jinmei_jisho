@@ -3,13 +3,15 @@
 Wikipediaダンプからmozc用人名辞書を作成する
 """
 
-import re
-import regex
 import bz2
+import re
 import sys
 from datetime import datetime
-import lxml.etree as etree
+from typing import BinaryIO, cast
+from zoneinfo import ZoneInfo
 
+import regex
+from lxml import etree
 
 # -----------------------------------------------------
 RE_SEIMEI = regex.compile(
@@ -65,18 +67,17 @@ def proc_text(text):
 
     last500 = text[-500:]
     # ＜1単語＞ 形式
-    if "人物" in last500:
-        if m := RE_TAN.search(text):
-            tan_kanji, tan_yomi = m.groups()
-            # tan_yomi = tan_yomi.replace(" ", "")
-            tan_yomi = re.sub(r"\s+", "", tan_yomi)
+    if "人物" in last500 and (m := RE_TAN.search(text)):
+        tan_kanji, tan_yomi = m.groups()
+        # tan_yomi = tan_yomi.replace(" ", "")
+        tan_yomi = re.sub(r"\s+", "", tan_yomi)
 
-            if tan_yomi == "":
-                return
-
-            # Mozc辞書形式で出力
-            print(f"{tan_yomi}\t{tan_kanji}\t人名")
+        if tan_yomi == "":
             return
+
+        # Mozc辞書形式で出力
+        print(f"{tan_yomi}\t{tan_kanji}\t人名")
+        return
 
 
 # -------------------------------
@@ -107,10 +108,10 @@ def is_taisyo(title, text):
     return False
 
 
-def open_dumpfile(filename):
+def open_dumpfile(filename) -> BinaryIO:
     """.xml と .xml.bz2 の両方に対応"""
     if filename.endswith(".bz2"):
-        return bz2.open(filename, "rb")
+        return cast(BinaryIO, bz2.BZ2File(filename, "rb"))
     return open(filename, "rb")
 
 
@@ -129,8 +130,9 @@ def proc(dumpfile):
         for event, elem in context:
             # namespace detection
             if ns_uri is None and event == "start":
-                if elem.tag.startswith("{"):
-                    ns_uri = elem.tag.split("}")[0][1:]
+                tag = str(elem.tag)
+                if tag.startswith("{"):
+                    ns_uri = tag.split("}")[0][1:]
                     NS = f"{{{ns_uri}}}"
                     lognow(f"{NS=}")
 
@@ -157,7 +159,9 @@ def proc(dumpfile):
                 elem.clear()
 
                 while elem.getprevious() is not None:
-                    del elem.getparent()[0]
+                    parent = elem.getparent()
+                    assert parent is not None
+                    del parent[0]
 
 
 # -------------------------------
@@ -165,7 +169,7 @@ def proc(dumpfile):
 
 def lognow(msg):
     """log"""
-    now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    now = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y/%m/%d %H:%M:%S")
 
     print(f"[{now}] {msg}", file=sys.stderr)
 
