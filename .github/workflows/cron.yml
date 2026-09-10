@@ -65,3 +65,4 @@ jobs:
         run: |
           echo ${{ secrets.EMAIL }}
           echo test | mail -s "jisho done" ${{ secrets.EMAIL }}
+          make sendmail EMAIL=${{ secrets.EMAIL }}

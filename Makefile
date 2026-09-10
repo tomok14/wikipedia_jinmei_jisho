@@ -14,3 +14,6 @@ test:
 
 clean:
 	rm output/*
+
+sendmail:
+	sendmail.sh $(EMAIL)
