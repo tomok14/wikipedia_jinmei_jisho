@@ -10,7 +10,8 @@ honban:
 
 test:
 	#./bin/build.sh data/Wikipedia-20260708213825.xml
-	build.sh data/Wikipedia-20260410193938.xml.bz2
+	#build.sh data/Wikipedia-20260410193938.xml.bz2
+	build.sh data/Wikipedia-20261102215757.xml
 
 clean:
 	rm output/*

@@ -18,12 +18,12 @@ RE_SEIMEI = regex.compile(
     r"'''([\p{Script=Han}\p{Hiragana}\p{Katakana}ー々]+)\s+"
     r"([\p{Script=Han}\p{Hiragana}\p{Katakana}ー々]+)'''"
     r"[^\(（]*"
-    r"[\(（]([ぁ-んー]+)\s+([ぁ-んー]+)"
+    r"[\(（]([ぁ-んァ-ヶー]+)\s+([ぁ-んァ-ヶー]+)"
 )
 
 RE_TAN = regex.compile(
     r"'''([\p{Script=Han}\p{Hiragana}\p{Katakana}ー々]+)'''"
-    r"[\(（]([ぁ-んー\s]+)"
+    r"[\(（]\(([ぁ-んァ-ヶー\s]+)"
 )
 RE_RUBY_REPLACE = regex.compile(
     r"\{\{読み仮名_ruby不使用\s*"
@@ -34,6 +34,12 @@ RE_RUBY_REPLACE = regex.compile(
 
 # {{...}} テンプレート除去（名前と読みの間に挿入されるefn等への対応）
 RE_STRIP_TEMPLATE = regex.compile(r"\{\{(?:[^{}]|(?R))*\}\}")
+
+
+# -------------------------------
+def kata_to_hira(s):
+    """カタカナをひらがなに変換"""
+    return "".join(chr(ord(c) - 0x60) if "ァ" <= c <= "ヶ" else c for c in s)
 
 
 # -------------------------------
@@ -56,6 +62,10 @@ def proc_text(text):
     if m := RE_SEIMEI.search(text):
         sei_kanji, mei_kanji, sei_yomi, mei_yomi = m.groups()
 
+        # カタカナをひらがなに変換
+        sei_yomi = kata_to_hira(sei_yomi)
+        mei_yomi = kata_to_hira(mei_yomi)
+
         # Mozc辞書形式で出力
         if not is_hiragana(sei_kanji):
             print(f"{sei_yomi}\t{sei_kanji}\t姓")
@@ -71,6 +81,9 @@ def proc_text(text):
         tan_kanji, tan_yomi = m.groups()
         # tan_yomi = tan_yomi.replace(" ", "")
         tan_yomi = re.sub(r"\s+", "", tan_yomi)
+
+        # カタカナをひらがなに変換
+        tan_yomi = kata_to_hira(tan_yomi)
 
         if tan_yomi == "":
             return
